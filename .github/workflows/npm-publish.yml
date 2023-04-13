@@ -11,7 +11,7 @@ jobs:
 
 
 
-  jobl:
+  job1:
     name: CI- Build e criação do artefato
     runs-on: ubuntu-latest
     steps:
@@ -39,3 +39,34 @@ jobs:
           name: artefato
           retention-days:
           path: ./
+
+
+
+job2:
+  name: CD- Deploy na Vercel
+  needs: job1
+  runs-on: ubuntu- latest
+  steps:
+    - name: Baixando Artefato do código buldado
+      uses: actions/download-artifact@v3
+      with:
+        name: artefato
+        
+    - name: Instalando pacotes do npm
+      run: npm install
+      
+    - name: Arquivos e pastas do artefato
+      run: ls
+      
+    - name: Instalando CLI da Vercel
+      run: npm install --global vercel@latest
+      
+    - name: Buscando informações de ambiente no Vercel
+      run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      
+    - name: Bildando artefato do projeto
+      run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
+    - name: Deploy de artefatos do projeto na Vercel
+      run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+    
